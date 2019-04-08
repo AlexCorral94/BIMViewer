@@ -45,10 +45,14 @@
 <script>
 
   // global variables
-  var renderer, scene, camera;
+    var renderer, scene, camera;
     var control, stats, controls;
-    var maxdistance, modelo;
-    var spotLight, gridHelper;
+    var spotLight, gridHelper, modelo;
+    var elementCol, elemetOpa, objectSel;
+    var elementtransparent;
+    var maxdistance = 100000;
+    var mindistance = 1;
+    var modelLocation = "assets/models/exported/HouseRevit1.js";
 
     var _mouse = { x: 0, y: 0 },
 			    objects = [],
@@ -61,13 +65,14 @@
 
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         scene = new THREE.Scene();
-        maxdistance = 100000;
         
         // create a camera, which defines where we're looking at.
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 15, maxdistance*2);
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, mindistance*0.9, maxdistance*2.2);
+        
         camera.position.x = maxdistance*0.5;
         camera.position.y = maxdistance*0.5;
         camera.position.z = maxdistance;
+        
 
         // create a render, sets the background color and the size
         renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
@@ -81,7 +86,7 @@
         controls = new THREE.OrbitControls( camera, renderer.domElement );
         controls.addEventListener( 'change', render );
         controls.enableZoom = true;
-        controls.minDistance = 20;
+        controls.minDistance = mindistance;
         controls.maxDistance = maxdistance;
         controls.enablePan = true;
    
@@ -103,14 +108,11 @@
         spotLight.shadow.camera.far = maxdistance;
         spotLight.shadow.camera.near = 0.1;
         scene.add( spotLight )
-
-        
-
+ 
         //Add gridline
-        gridHelper = new THREE.GridHelper( 50000, 1000 );
+        gridHelper = new THREE.GridHelper( 5000, 100 );
         gridHelper.visible = false;
         scene.add( gridHelper );
-
 
         //SKYDOME
         var vertexShader = document.getElementById( 'vertexShader' ).textContent;
@@ -153,7 +155,6 @@
         // loadModel();
         loadModel();
 
-
         animate();
 
         // add the output of the renderer to the html element
@@ -164,18 +165,14 @@
         addControlGui();
 
         controls.update();
-     
+
     }
 
+    //Selects an element when double clicking
+    document.addEventListener( 'dblclick', onDocumentMouseDown, false );
 
-    document.addEventListener( 'click', onDocumentMouseDown, false );
-
-
-    var elementCol;
-    var elemetOpa;
-    var objectSel;
-    var elementtransparent;
-
+    
+//Define function when an element is double clicked
 function onDocumentMouseDown( event ) {
 
     event.preventDefault();
@@ -188,8 +185,6 @@ function onDocumentMouseDown( event ) {
     vector.unproject( camera );
 
     var ray = new THREE.Raycaster( camera.position, vector.sub(camera.position ).normalize() );
-    
-    //var ray = _projector.pickingRay( vector, camera );
 
     var intersects = ray.intersectObjects( scene.children, true);
 
@@ -211,7 +206,7 @@ function onDocumentMouseDown( event ) {
             intersects[ 0 ].object.material.color.setHex( 0x0033cc );
             intersects[ 0 ].object.material.opacity = 0.5;
             intersects[ 0 ].object.material.transparent = true;
-            alert(intersects[ 0 ].object.uuid);
+            //alert(intersects[ 0 ].object.uuid);
             
             
             objectSel = intersects[ 0 ].object;
@@ -222,34 +217,40 @@ function onDocumentMouseDown( event ) {
     //Load customized Json file
     function loadModel() {
         var loader = new THREE.ObjectLoader();
-        loader.load("assets/models/exported/HouseRevit1.js",
+        loader.load(modelLocation,
             function (model) {
             model.castShadow = true;
+                
             // var helper = new THREE.EdgesHelper( model, 0xffffff );
             // helper.material.linewidth = 2;
             // scene.add(helper);
 
-            //var edges = new THREE.EdgesGeometry( model );
-            //var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
-            // scene.add( line );
+            //Add edges to each element
+            // edges = new THREE.EdgesHelper( mesh, 0xEA25E8 );
+            // edges.matrixAutoUpdate = true;
+            // edges.material.linewidth = 1500;
+            // scene.add( edges );
+            
+            model.scale.set( 0.1, 0.1, 0.1 );
 
+            //Adjust the camera location to the max bouding from object
+            var bbox = new THREE.Box3().setFromObject(model);
+            var maxObjectDistance = Math.max(bbox.max.z, bbox.max.x, bbox.max.y);
+            camera.position.z = maxObjectDistance
+            camera.position.x = bbox.max.x;
+            camera.position.y = bbox.max.y;
+
+            //Adjust the camera near plane and max/min zoom for controls
+            var averageSizes = ((bbox.max.z + bbox.max.x +  bbox.max.y)/3)*0.01;
+            camera.near = averageSizes;
+            controls.minDistance = averageSizes*1.2;
+            controls.maxDistance = maxObjectDistance*4;
+            camera.updateProjectionMatrix();
+            
             scene.add(model);         
-        });
-        
+        });     
     }
     
-
-
-          
-            // var boundingBox = new THREE.Box3().setFromObject(model);
-            // var boundingValues = [Math.abs(boundingBox.min.x), Math.abs(boundingBox.max.x), 
-            // Math.abs(boundingBox.min.y), Math.abs(boundingBox.max.y), 
-            // Math.abs(boundingBox.min.z), Math.abs(boundingBox.max.z)]; 
-            // largest = Math.max.apply(Math, boundingValues);
-             
-
-
-
             
     function addControlGui() {
         var gui = new dat.GUI();
@@ -322,6 +323,7 @@ function onDocumentMouseDown( event ) {
     // calls the handleResize function when the window is resized
     window.addEventListener('resize', handleResize, false);
 
+    
 </script>
 <body>
 </body>
