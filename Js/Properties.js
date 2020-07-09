@@ -1,7 +1,4 @@
-
-
-
-function addControlGui(Object3D) {
+function addControlGui() {
 
     var gui = new dat.GUI();
     var f1 = gui.addFolder('Configuration');

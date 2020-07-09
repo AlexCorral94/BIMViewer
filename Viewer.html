@@ -13,6 +13,10 @@
     <script src="libs/Projector.js"></script>
     <script src="js/Properties.js"></script>
     <script src="js/StaticVariables.js"></script>
+    <script src="js/Selection.js"></script>
+    <script src="js/Loader.Js"></script>
+    <script src="js/Actions.js"></script>
+
     
 
     <script type="x-shader/x-vertex" id="vertexShader">
@@ -50,17 +54,15 @@
     var control, stats, controls;
     var spotLight, gridHelper, modelo;
     var oringinMaterial;
-    var elementtransparent;
     var maxdistance = 100000;
     var mindistance = 1;
     var modelLocation = "assets/models/exported/HouseRevit1.js";
     var objectSel = null;
     var currentElm = null;
-    var userInterface;
     var gui1_X;
 
     var Object3D = {
-        Name: "Test"};
+        Name: ""};
 
 
     var _mouse = { x: 0, y: 0 },
@@ -76,20 +78,17 @@
         scene = new THREE.Scene();
         
         // create a camera, which defines where we're looking at.
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, mindistance*0.9, maxdistance*2.2);
-        
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, mindistance*0.9, maxdistance*2.2);   
         camera.position.x = maxdistance*0.5;
         camera.position.y = maxdistance*0.5;
         camera.position.z = maxdistance;
         
-
         // create a render, sets the background color and the size
         renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
         renderer.setClearColor(0x000000, 1.0);
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild( renderer.domElement );
         renderer.shadowMap.Enabled;
-
 
         //Create controls to enable pan y zoom
         controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -118,11 +117,6 @@
         spotLight.shadow.camera.near = 0.1;
         scene.add( spotLight )
  
-        //Add gridline
-        gridHelper = new THREE.GridHelper( 5000, 100 );
-        gridHelper.visible = false;
-        scene.add( gridHelper );
-
         //SKYDOME
         var vertexShader = document.getElementById( 'vertexShader' ).textContent;
 				var fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
@@ -144,89 +138,23 @@
 				} );
 				var sky = new THREE.Mesh( skyGeo, skyMat );
 				scene.add( sky );
-
-        // create the ground plane
-        var planeGeometry = new THREE.PlaneGeometry(20, 20);
-        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xcccccc});
-        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.receiveShadow = true;
-
-        // rotate and position the plane
-        plane.rotation.x = -0.5 * Math.PI;
-        plane.position.x = 0;
-        plane.position.y = -2;
-        plane.position.z = 0;
-
-      
+     
         // add extras
-        addStatsObject();
-
-        // loadModel();
         loadModel();
-
         animate();
-
+        addControlGui();
         // add the output of the renderer to the html element
         document.body.appendChild(renderer.domElement);
         render();
-
-        var gui = new dat.GUI();
-    var f1 = gui.addFolder('Configuration');
-    var params = {
-                intensity: spotLight.intensity,
-            };
-    f1.add( params, 'intensity', 0, 2 ).onChange( function ( val ) {
-                spotLight.intensity = val;
-                render();
-            } );
-  
-    gui1_X = gui.add(Object3D, 'Name').listen();
-
         // addControlGui(Object3D);
         controls.update();
 
     }
 
+
     //Selects an element when double clicking
     document.addEventListener( 'dblclick', onDocumentMouseDown, false );
-
     
-    //Define function when an element is double clicked
-    function onDocumentMouseDown( event ) {
-
-        event.preventDefault();    
-        // find intersections
-        _mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        _mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    
-        var vector = new THREE.Vector3( _mouse.x, _mouse.y, 1 );
-        vector.unproject( camera );
-        var ray = new THREE.Raycaster( camera.position, vector.sub(camera.position ).normalize() );
-        var intersects = ray.intersectObjects( scene.children, true);
-        
-        //Get object 3D
-        currentElm = scene.getObjectByName(intersects[ 0 ].object.name);
-
-        if ( intersects.length > 0 ) {  
-            if(objectSel != undefined){
-
-                objectSel.material = oringinMaterial;
-            }
-            oringinMaterial = intersects[ 0 ].object.material;
-            intersects[ 0 ].object.material = Selmaterial;          
-            objectSel = intersects[ 0 ].object;
-        }	
-        
-        Object3D.Name = objectSel.name;
-        gui1_X.updateDisplay();
-    }
-
-    //Remove element from scene
-    function removeEntity(object) {
-        var selectedObject = scene.getObjectByName(object.name);
-        selectedObject.parent.remove( selectedObject );
-    }
-
     //Remove element when delete key is pressed
     document.addEventListener('keydown', function(event) {
         if (event.code == 'Delete') {
@@ -237,68 +165,14 @@
         }
     });
 
-    //Load customized Json file
-    function loadModel() {
-        var loader = new THREE.ObjectLoader();
-        loader.load(modelLocation,
-            function (model) {
-            model.castShadow = true;
-                
-            // var helper = new THREE.EdgesHelper( model, 0xffffff );
-            // helper.material.linewidth = 2;
-            // scene.add(helper);
-
-            //Add edges to each element
-            // edges = new THREE.EdgesHelper( mesh, 0xEA25E8 );
-            // edges.matrixAutoUpdate = true;
-            // edges.material.linewidth = 1500;
-            // scene.add( edges );
-            
-            model.scale.set( 0.1, 0.1, 0.1 );
-
-            //Adjust the camera location to the max bouding from object
-            var bbox = new THREE.Box3().setFromObject(model);
-            var maxObjectDistance = Math.max(bbox.max.z, bbox.max.x, bbox.max.y);
-            camera.position.z = maxObjectDistance
-            camera.position.x = bbox.max.x;
-            camera.position.y = bbox.max.y;
-
-            //Adjust the camera near plane and max/min zoom for controls
-            var averageSizes = ((bbox.max.z + bbox.max.x +  bbox.max.y)/3)*0.01;
-            camera.near = averageSizes;
-            controls.minDistance = averageSizes*1.2;
-            controls.maxDistance = maxObjectDistance*4;
-            camera.updateProjectionMatrix();
-            
-            scene.add(model);         
-        });     
-    }
     
-    function addStatsObject() {
-        stats = new Stats();
-        stats.setMode(0);
-
-        stats.domElement.style.position = 'absolute';
-        stats.domElement.style.left = '0px';
-        stats.domElement.style.top = '0px';
-
-        document.body.appendChild( stats.domElement );
-    }
-
     /**
      * Called when the scene needs to be rendered. Delegates to requestAnimationFrame
      * for future renders
      */
     function render() {
-
-        // update stats
-        stats.update();
-
         // and render the scene
         renderer.render(scene, camera);
-
-        // render using requestAnimationFrame
-        //requestAnimationFrame(render);
     }
 
     /**
