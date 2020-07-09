@@ -11,7 +11,8 @@
     <script src="libs/TrackballControls.js"></script>
     <script src="libs/BufferGeometryUtils.js"></script>
     <script src="libs/Projector.js"></script>
-
+    <script src="js/Properties.js"></script>
+    <script src="js/StaticVariables.js"></script>
     
 
     <script type="x-shader/x-vertex" id="vertexShader">
@@ -48,11 +49,19 @@
     var renderer, scene, camera;
     var control, stats, controls;
     var spotLight, gridHelper, modelo;
-    var elementCol, elemetOpa, objectSel;
+    var oringinMaterial;
     var elementtransparent;
     var maxdistance = 100000;
     var mindistance = 1;
     var modelLocation = "assets/models/exported/HouseRevit1.js";
+    var objectSel = null;
+    var currentElm = null;
+    var userInterface;
+    var gui1_X;
+
+    var Object3D = {
+        Name: "Test"};
+
 
     var _mouse = { x: 0, y: 0 },
 			    objects = [],
@@ -159,11 +168,21 @@
 
         // add the output of the renderer to the html element
         document.body.appendChild(renderer.domElement);
-
         render();
 
-        addControlGui();
+        var gui = new dat.GUI();
+    var f1 = gui.addFolder('Configuration');
+    var params = {
+                intensity: spotLight.intensity,
+            };
+    f1.add( params, 'intensity', 0, 2 ).onChange( function ( val ) {
+                spotLight.intensity = val;
+                render();
+            } );
+  
+    gui1_X = gui.add(Object3D, 'Name').listen();
 
+        // addControlGui(Object3D);
         controls.update();
 
     }
@@ -172,47 +191,51 @@
     document.addEventListener( 'dblclick', onDocumentMouseDown, false );
 
     
-//Define function when an element is double clicked
-function onDocumentMouseDown( event ) {
+    //Define function when an element is double clicked
+    function onDocumentMouseDown( event ) {
 
-    event.preventDefault();
+        event.preventDefault();    
+        // find intersections
+        _mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        _mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
     
-    // find intersections
-    _mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    _mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    
-    var vector = new THREE.Vector3( _mouse.x, _mouse.y, 1 );
-    vector.unproject( camera );
+        var vector = new THREE.Vector3( _mouse.x, _mouse.y, 1 );
+        vector.unproject( camera );
+        var ray = new THREE.Raycaster( camera.position, vector.sub(camera.position ).normalize() );
+        var intersects = ray.intersectObjects( scene.children, true);
+        
+        //Get object 3D
+        currentElm = scene.getObjectByName(intersects[ 0 ].object.name);
 
-    var ray = new THREE.Raycaster( camera.position, vector.sub(camera.position ).normalize() );
-
-    var intersects = ray.intersectObjects( scene.children, true);
-
-    
-
-    if ( intersects.length > 0 ) {
-            
+        if ( intersects.length > 0 ) {  
             if(objectSel != undefined){
 
-                objectSel.material.color.setHex(elementCol);
-                objectSel.material.opacity = elemetOpa;
-                objectSel.material.transparent = elementtransparent;
-                //alert(elementCol);
+                objectSel.material = oringinMaterial;
             }
-            elementCol = intersects[ 0 ].object.material.color.getHex();
-            elemetOpa = intersects[ 0 ].object.material.opacity;
-            elementtransparent = intersects[ 0 ].object.material.transparent;
-
-            intersects[ 0 ].object.material.color.setHex( 0x0033cc );
-            intersects[ 0 ].object.material.opacity = 0.5;
-            intersects[ 0 ].object.material.transparent = true;
-            //alert(intersects[ 0 ].object.uuid);
-            
-            
+            oringinMaterial = intersects[ 0 ].object.material;
+            intersects[ 0 ].object.material = Selmaterial;          
             objectSel = intersects[ 0 ].object;
-    }	
-}
+        }	
+        
+        Object3D.Name = objectSel.name;
+        gui1_X.updateDisplay();
+    }
 
+    //Remove element from scene
+    function removeEntity(object) {
+        var selectedObject = scene.getObjectByName(object.name);
+        selectedObject.parent.remove( selectedObject );
+    }
+
+    //Remove element when delete key is pressed
+    document.addEventListener('keydown', function(event) {
+        if (event.code == 'Delete') {
+            if(objectSel != null){
+            removeEntity(objectSel);
+            }
+            objectSel = null;
+        }
+    });
 
     //Load customized Json file
     function loadModel() {
@@ -251,28 +274,6 @@ function onDocumentMouseDown( event ) {
         });     
     }
     
-            
-    function addControlGui() {
-        var gui = new dat.GUI();
-        
-        var params = {
-					intensity: spotLight.intensity,
-				};
-        gui.add( params, 'intensity', 0, 2 ).onChange( function ( val ) {
-					spotLight.intensity = val;
-					render();
-				} );
-
-        var props = {
-	                hideBars: gridHelper.visible,
-				};
-         gui.add(props,'hideBars').name('Grid').onChange( function ( val ) {
-					gridHelper.visible = val;
-                    render();
-                } );
-        
-    }
-
     function addStatsObject() {
         stats = new Stats();
         stats.setMode(0);
