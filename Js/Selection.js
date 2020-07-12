@@ -17,6 +17,7 @@
             //Get object 3D
             currentElm = scene.getObjectByName(intersects[ 0 ].object.name);
 
+
             if ( intersects.length > 0 ) {  
                 if(objectSel != undefined){
                     objectSel.material = oringinMaterial;
@@ -30,5 +31,7 @@
         }
         else{
             objectSel.material = oringinMaterial;
+            db.collection('models').doc('test1').update(model);
         }
+        
     }
