@@ -48,13 +48,9 @@ THREE.LegacyJSONLoader = ( function () {
 
 							console.error( 'THREE.JSONLoader: ' + url + ' should be loaded with THREE.ObjectLoader instead.' );
 							return;
-
 						}
-
 					}
-
 				}
-
 				var object = scope.parse( json, path );
 				onLoad( object.geometry, object.materials );
 
