@@ -65,6 +65,17 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 <script>
+    // var model = null;
+    // $.ajax({
+    //     'async': false,
+    //     'global': false,
+    //     'url': "./assets/models/exported/RoofAndWalls.js",
+    //     'dataType': "json",
+    //     'success': function (data) {
+    //         model = data;
+    //     }
+    // });
+
     var firebaseConfig = {
         apiKey: "AIzaSyAm2Ey-Tj0lND0aZwmVqsul1UloNzwR9_E",
         authDomain: "bimsocket-db.firebaseapp.com",
@@ -78,6 +89,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // db.collection('models').doc('test1').update(model);
+
   // global variables
     var renderer, scene, camera;
     var control, stats, controls;
@@ -88,7 +101,6 @@
     var objectSel = null;
     var currentElm = null;
     var gui1_X;
-    
 
     var Object3D = {
         Name: ""};

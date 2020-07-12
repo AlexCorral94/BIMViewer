@@ -4,15 +4,39 @@
         selectedObject.parent.remove( selectedObject );
     }
 
-      //Change Material Color
-      function ChangeColor(object, hexColor) {
-        
+    //Change Material Color
+    function ChangeColor(object, hexColor) {
         var rgbs = HEX2RGB(hexColor);
-        if(oringinMaterial != undefined)
-        {
+        if(oringinMaterial != undefined) {
+            const rgbColor = hexToRgb(hexColor.replace('#', ''));
+            const intColor = swiftCol(rgbColor);
+            var materialIndex = null;
+            model.materials.find((material, index) => {
+                if (material.uuid == oringinMaterial.uuid) {
+                    materialIndex = index;
+                    return index;
+                }
+            });
+            model.materials[materialIndex].color = intColor;
+            db.collection('models').doc('test1').update(model);
             oringinMaterial.color = {r:rgbs[0], g:rgbs[1], b:rgbs[2]};
         }
 
+    }
+
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        } : null;
+      }
+
+    function swiftCol (rgb) {
+        return (  rgb.r ) << 16
+        | (  rgb.g ) << 8
+        | rgb.b;
     }
 
     function HEX2RGB (hex) {
