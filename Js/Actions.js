@@ -24,6 +24,27 @@
 
     }
 
+      //Selects an element when single clicking
+    function ActivateCube(event)
+    {
+        document.addEventListener( 'click', onContextMenu, false );
+    }
+
+    function addCube(x, y, z){
+
+        var geometry = new THREE.CubeGeometry( 200, 200, 200 );
+        var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+        var material = new THREE.MeshBasicMaterial( { color: randomColor } );
+        var mesh = new THREE.Mesh( geometry, material );
+            mesh.position.set(x, y, z);
+        var nameMesh = Math.floor(Math.random() * 999999999999) + 1
+        mesh.name = nameMesh.toString();
+      //scene is global
+       scene.add(mesh);
+       document.removeEventListener( 'click', onContextMenu, false );
+    }
+    
+      
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {

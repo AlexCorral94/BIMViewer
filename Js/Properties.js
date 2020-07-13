@@ -14,8 +14,14 @@ function addControlGui() {
   
     gui1_X = gui.add(Object3D, 'Name').listen();
 
+    //Add colour picker
     gui.addColor(colorPicker, 'color0')
     .onChange( function() {  ChangeColor(objectSel, colorPicker.color0); } );
+
+    //Add button to create cubes
+    var obj = { Add_Cube:function(){ ActivateCube(); }};
+
+    gui.add(obj,'Add_Cube');
 
 }
 

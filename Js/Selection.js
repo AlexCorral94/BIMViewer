@@ -10,7 +10,7 @@
         vector.unproject( camera );
         var ray = new THREE.Raycaster( camera.position, vector.sub(camera.position ).normalize() );
         var intersects = ray.intersectObjects( scene.children, true);     
-        if(intersects[ 0 ].object.type != "Scene" &&
+        if(intersects[ 0 ].object.type != "Scene"&&
         intersects[ 0 ].object.name != "")
         {
             //Get object 3D
@@ -34,17 +34,6 @@
         }
     }
 
-    function addCube(x, y, z){
-
-        var geometry = new THREE.CubeGeometry( 200, 200, 200 );
-        var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
-        var material = new THREE.MeshBasicMaterial( { color: randomColor } );
-        var mesh = new THREE.Mesh( geometry, material );
-            mesh.position.set(x, y, z);
-      //scene is global
-       scene.add(mesh);
-    }
-
     function onContextMenu(event)
     {
         event.preventDefault();    
@@ -57,5 +46,11 @@
         var ray = new THREE.Raycaster( camera.position, vector.sub(camera.position ).normalize() );
         var intersects = ray.intersectObjects( scene.children, true);
         var pointIntersect = intersects[ 0 ].point;
+        if(intersects[ 0 ].object.type != "Scene" &&
+        intersects[ 0 ].object.name != "")
+        {
         addCube(pointIntersect.x, pointIntersect.y, pointIntersect.z)
+        }
     }
+
+   
