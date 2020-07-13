@@ -41,7 +41,6 @@
         mesh.name = nameMesh.toString();
       //scene is global
        scene.add(mesh);
-       document.removeEventListener( 'click', onContextMenu, false );
     }
     
       
