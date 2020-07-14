@@ -46,19 +46,20 @@
 
     function addCube(x, y, z){
 
-        var geometry = new THREE.CubeGeometry( 200, 200, 200 );
+        var geometry = new THREE.CubeGeometry( 2000, 2000, 2000 );
         var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
         var material = new THREE.MeshBasicMaterial( { color: randomColor } );
         var mesh = new THREE.Mesh( geometry, material );
-            mesh.position.set(x, y, z);
+            mesh.position.set(x * 10, y * 10, z * 10);
         var nameMesh = Math.floor(Math.random() * 999999999999) + 1
         mesh.name = nameMesh.toString();
-        scene.add(mesh);
+        // scene.add(mesh);
         var parent = new THREE.Object3D();
-        scene.add(parent);
         parent.add(mesh);
         var objectModel = scene.getObjectByName( "BIM RAC_basic_sample_project" );
-        
+        scene.add(parent);
+        objectModel.add(parent);     
+
     }
     
       
