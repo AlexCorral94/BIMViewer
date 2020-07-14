@@ -1,5 +1,19 @@
     //Remove element from scene
     function removeEntity(object) {
+        // Search and delete specific object on parent object and save into firebase
+        var indexObj = null;
+        modelObj.children.find((child, index) => {
+            if (child.uuid == object.uuid) {
+                indexObj = index;
+                return index;
+            }
+        });
+        if (indexObj) {
+            modelObj.children.splice(indexObj, 1);
+        }
+        model = modelObj.toJSON();
+        db.collection('models').doc('test1').update(model);
+
         var selectedObject = scene.getObjectByName(object.name);
         selectedObject.parent.remove( selectedObject );
     }

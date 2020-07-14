@@ -9,6 +9,9 @@ function loadModel() {
             model = doc.data();
             loader.parse(model,
                 function (mod) {
+                    // console.log(mod);
+                    modelObj = mod;
+                    console.log(modelObj);
                     mod.castShadow = true;
                     mod.scale.set( 0.1, 0.1, 0.1 );
         
@@ -42,8 +45,7 @@ function loadModel() {
         loader.parse(model,
             function (mod) {
                 mod.castShadow = true;
-                mod.scale.set( 0.1, 0.1, 0.1 );
-                scene.add(mod);         
+                mod.scale.set( 0.1, 0.1, 0.1 );       
             }
         ); 
     });
