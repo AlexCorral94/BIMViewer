@@ -37,14 +37,14 @@ function loadModel() {
     });
 
     // Subscribe on update changes for model on firebase
-    db.collection('models').doc(`test1`).onSnapshot((modelChanges) => {
-        model = modelChanges.data();
-        loader.parse(model,
-            function (mod) {
-                mod.castShadow = true;
-                mod.scale.set( 0.1, 0.1, 0.1 );
-                scene.add(mod);         
-            }
-        ); 
-    });
+    // db.collection('models').doc(`test1`).onSnapshot((modelChanges) => {
+    //     model = modelChanges.data();
+    //     loader.parse(model,
+    //         function (mod) {
+    //             mod.castShadow = true;
+    //             mod.scale.set( 0.1, 0.1, 0.1 );
+    //             scene.add(mod);         
+    //         }
+    //     ); 
+    // });
 }

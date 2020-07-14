@@ -39,8 +39,12 @@
             mesh.position.set(x, y, z);
         var nameMesh = Math.floor(Math.random() * 999999999999) + 1
         mesh.name = nameMesh.toString();
-      //scene is global
-       scene.add(mesh);
+        scene.add(mesh);
+        var parent = new THREE.Object3D();
+        scene.add(parent);
+        parent.add(mesh);
+        var objectModel = scene.getObjectByName( "BIM RAC_basic_sample_project" );
+        
     }
     
       
