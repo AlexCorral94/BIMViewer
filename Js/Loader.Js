@@ -13,7 +13,6 @@ function loadModel() {
                     modelObj = mod;
                     console.log(modelObj);
                     mod.castShadow = true;
-                    mod.scale.set( 0.1, 0.1, 0.1 );
         
                     //Adjust the camera location to the max bouding from object
                     var bbox = new THREE.Box3().setFromObject(mod);
@@ -44,8 +43,7 @@ function loadModel() {
         model = modelChanges.data();
         loader.parse(model,
             function (mod) {
-                mod.castShadow = true;
-                mod.scale.set( 0.1, 0.1, 0.1 );       
+                mod.castShadow = true;      
             }
         ); 
     });
