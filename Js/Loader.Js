@@ -9,6 +9,9 @@ function loadModel() {
             model = doc.data();
             loader.parse(model,
                 function (mod) {
+                    // console.log(mod);
+                    modelObj = mod;
+                    console.log(modelObj);
                     mod.castShadow = true;
                     mod.scale.set( 0.1, 0.1, 0.1 );
         
@@ -37,14 +40,13 @@ function loadModel() {
     });
 
     // Subscribe on update changes for model on firebase
-    // db.collection('models').doc(`test1`).onSnapshot((modelChanges) => {
-    //     model = modelChanges.data();
-    //     loader.parse(model,
-    //         function (mod) {
-    //             mod.castShadow = true;
-    //             mod.scale.set( 0.1, 0.1, 0.1 );
-    //             scene.add(mod);         
-    //         }
-    //     ); 
-    // });
+    db.collection('models').doc(`test1`).onSnapshot((modelChanges) => {
+        model = modelChanges.data();
+        loader.parse(model,
+            function (mod) {
+                mod.castShadow = true;
+                mod.scale.set( 0.1, 0.1, 0.1 );       
+            }
+        ); 
+    });
 }
