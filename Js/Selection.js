@@ -24,13 +24,16 @@
                 oringinMaterial = intersects[ 0 ].object.material;
                 intersects[ 0 ].object.material = Selmaterial;          
                 objectSel = intersects[ 0 ].object;
+                intersectionPoint = intersects[ 0 ].point;
             }	   
             Object3D.Name = objectSel.name;
             gui1_X.updateDisplay();
+            
         }
         else{
             objectSel.material = oringinMaterial;
             db.collection('models').doc('test1').update(model);
+            DesactivateToggleMove();
         }
     }
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>07.01 - Load JSON Model</title>
+    <title>BIMSocket</title>
     <script src="libs/three.js"></script>
     <script src="libs/dat.gui.min.js"></script>
     <script src="libs/stats.min.js"></script>
@@ -11,13 +11,15 @@
     <script src="libs/TrackballControls.js"></script>
     <script src="libs/BufferGeometryUtils.js"></script>
     <script src="libs/Projector.js"></script>
+    <script src="libs/TransformControls.js"></script>
     <script src="js/Properties.js"></script>
     <script src="js/StaticVariables.js"></script>
     <script src="js/Selection.js"></script>
     <script src="js/Loader.Js"></script>
     <script src="js/Actions.js"></script>
-
+    <script src="js/Modify.js"></script>
     
+
 
     <script type="x-shader/x-vertex" id="vertexShader">
 			varying vec3 vWorldPosition;
@@ -65,6 +67,8 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 <script>
+
+    // import { TransformControls } from "/libs/TransformControls.js";
     var model = null;
     var modelObj = null;
     $.ajax({
@@ -103,6 +107,8 @@
     var objectSel = null;
     var currentElm = null;
     var gui1_X;
+    var controlTransform = false;
+    var intersectionPoint;
 
     var Object3D = {
         Name: ""};
@@ -119,7 +125,7 @@
 
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         scene = new THREE.Scene();
-        
+
         // create a camera, which defines where we're looking at.
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, mindistance*0.9, maxdistance*2.2);   
         camera.position.x = maxdistance*0.5;
@@ -132,15 +138,19 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild( renderer.domElement );
         renderer.shadowMap.Enabled;
-
+        
         //Create controls to enable pan y zoom
         controls = new THREE.OrbitControls( camera, renderer.domElement );
-        controls.addEventListener( 'change', render );
+        controls.addEventListener( 'change', () => renderer.render( scene, camera ) );
         controls.enableZoom = true;
         controls.minDistance = mindistance;
         controls.maxDistance = maxdistance;
         controls.enablePan = false;
         
+        //Create toggle to move, scale and rotate
+        control = new THREE.TransformControls(camera, renderer.domElement);
+        control.addEventListener( 'change', render );
+
         //Add a HemisphereLight
         var hemisphereLight = new THREE.HemisphereLight(0xfffafa,0x000000, .9)
         scene.add(hemisphereLight);
@@ -210,6 +220,12 @@
     });
 
     document.addEventListener( 'contextmenu', onContextMenu, false );
+
+
+    //Remove element when delete key is pressed
+    document.addEventListener('keydown', function(event) {
+        moveObj();
+    });
 
     /**
      * Called when the scene needs to be rendered. Delegates to requestAnimationFrame

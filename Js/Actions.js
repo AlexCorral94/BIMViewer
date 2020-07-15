@@ -12,7 +12,7 @@
             modelObj.children.splice(indexObj, 1);
         }
         model = modelObj.toJSON();
-        db.collection('models').doc('test1').update(model);
+        db.collection('models').doc('FBK_01').update(model);
 
         var selectedObject = scene.getObjectByName(object.name);
         selectedObject.parent.remove( selectedObject );
@@ -46,11 +46,11 @@
 
     function addCube(x, y, z){
 
-        var geometry = new THREE.CubeGeometry(2000, 2000, 2000);
+        var geometry = new THREE.CubeGeometry( 2000, 2000, 2000 );
         var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
         var material = new THREE.MeshBasicMaterial( { color: randomColor } );
         var mesh = new THREE.Mesh( geometry, material );
-            mesh.position.set(x, y , z);
+            mesh.position.set(x, y, z);
         var nameMesh = Math.floor(Math.random() * 999999999999) + 1
         mesh.name = nameMesh.toString();
         // scene.add(mesh);
@@ -58,8 +58,7 @@
         parent.add(mesh);
         var objectModel = scene.getObjectByName( "BIM RAC_basic_sample_project" );
         scene.add(parent);
-        objectModel.add(parent);     
-
+        objectModel.add(parent);
     }
     
       
